@@ -43,15 +43,15 @@ export class SalesDetailComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Venda não encontrada');
+        this.error.set('Sale not found');
         this.loading.set(false);
       }
     });
   }
 
   askCancelSale() {
-    this.confirmTitle.set('Cancelar Venda');
-    this.confirmMessage.set(`Cancelar a venda ${this.sale()?.saleNumber}? Todos os itens serão cancelados.`);
+    this.confirmTitle.set('Cancel sale');
+    this.confirmMessage.set(`Cancel sale ${this.sale()?.saleNumber}? All items will be cancelled.`);
     this.pendingAction = () => {
       this.salesService.cancelSale(this.saleId).subscribe({
         next: () => this.loadSale()
@@ -61,8 +61,8 @@ export class SalesDetailComponent implements OnInit {
   }
 
   askCancelItem(itemId: string, productName: string) {
-    this.confirmTitle.set('Cancelar Item');
-    this.confirmMessage.set(`Cancelar o item "${productName}"?`);
+    this.confirmTitle.set('Cancel item');
+    this.confirmMessage.set(`Cancel item "${productName}"?`);
     this.pendingAction = () => {
       this.salesService.cancelItem(this.saleId, itemId).subscribe({
         next: () => this.loadSale()

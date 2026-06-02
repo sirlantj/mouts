@@ -11,9 +11,9 @@
   <link rel="preconnect" href="https://rsms.me/">
   <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
 
-  <!-- Tailwind CSS via CDN (Play CDN) -->
-  <!-- Usado por causa de incompatibilidade entre Tailwind v4 PostCSS e o builder esbuild do Angular 21.
-       Em producao, configurar o PostCSS pipeline corretamente e remover este script. -->
+  <!-- Tailwind CSS via Play CDN. -->
+  <!-- Workaround for an incompatibility between Tailwind v4's PostCSS plugin and Angular 21's
+       esbuild-based builder. In production, configure the PostCSS pipeline properly and drop this. -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {

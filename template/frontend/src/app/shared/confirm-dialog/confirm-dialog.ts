@@ -19,10 +19,10 @@ import { Component, input, output } from '@angular/core';
           <p class="text-sm text-slate-600 mb-6 ml-[52px]">{{ message() }}</p>
           <div class="flex gap-3 justify-end">
             <button (click)="onCancel()" class="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer">
-              Cancelar
+              Back
             </button>
             <button (click)="onConfirm()" class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors cursor-pointer">
-              Confirmar
+              Confirm
             </button>
           </div>
         </div>
@@ -32,8 +32,8 @@ import { Component, input, output } from '@angular/core';
 })
 export class ConfirmDialogComponent {
   open = input(false);
-  title = input('Confirmar');
-  message = input('Tem certeza?');
+  title = input('Confirm');
+  message = input('Are you sure?');
   confirmed = output<void>();
   cancelled = output<void>();
 

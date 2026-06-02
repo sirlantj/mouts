@@ -49,7 +49,7 @@ export class SalesListComponent implements OnInit {
 
     this.salesService.getSales(params).subscribe({
       next: (res) => {
-        // unwrap interceptor ja achatou o envelope duplo; res.data eh SalesListResponse
+        // The unwrap interceptor already flattened the envelope: res.data is SalesListResponse.
         this.sales.set(res.data.data);
         this.totalCount.set(res.data.totalCount);
         this.currentPage.set(res.data.currentPage);
@@ -87,7 +87,7 @@ export class SalesListComponent implements OnInit {
 
   askCancel(sale: Sale) {
     this.cancelId = sale.id;
-    this.confirmMessage.set(`Cancelar venda ${sale.saleNumber}?`);
+    this.confirmMessage.set(`Cancel sale ${sale.saleNumber}?`);
     this.confirmOpen.set(true);
   }
 

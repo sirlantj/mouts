@@ -83,7 +83,7 @@ export class SalesFormComponent implements OnInit {
   }
 
   getQuantityError(quantity: number): string | null {
-    if (quantity > 20) return 'Máximo 20 itens por produto';
+    if (quantity > 20) return 'Max 20 items per product';
     return null;
   }
 
@@ -122,16 +122,16 @@ export class SalesFormComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Erro ao carregar venda');
+        this.error.set('Failed to load sale');
         this.loading.set(false);
       }
     });
   }
 
-  /** YYYY-MM-DD -> ISO 8601 UTC ("YYYY-MM-DDT00:00:00.000Z") */
+  /** YYYY-MM-DD -> ISO 8601 UTC ("YYYY-MM-DDT00:00:00.000Z"). */
   private toIsoUtc(date: string): string {
     if (!date) return new Date().toISOString();
-    // Se ja vier ISO completo (com T), so garante o Z
+    // If already a full ISO string (with T), just ensure trailing Z.
     if (date.includes('T')) {
       return date.endsWith('Z') ? date : date + 'Z';
     }
@@ -156,13 +156,13 @@ export class SalesFormComponent implements OnInit {
         next: () => this.router.navigate(['/sales', this.saleId]),
         error: (err) => {
           this.saving.set(false);
-          this.error.set(err.error?.message || 'Erro ao atualizar venda');
+          this.error.set(err.error?.message || 'Failed to update sale');
         }
       });
     } else {
       this.salesService.createSale({
         saleNumber: val.saleNumber,
-        // input type="date" devolve YYYY-MM-DD; backend espera ISO 8601 com timezone
+        // <input type="date"> returns YYYY-MM-DD; backend expects ISO 8601 with timezone.
         saleDate: this.toIsoUtc(val.saleDate),
         customerExternalId: val.customerExternalId,
         customerName: val.customerName,
@@ -173,7 +173,7 @@ export class SalesFormComponent implements OnInit {
         next: (res) => this.router.navigate(['/sales', res.data.id]),
         error: (err) => {
           this.saving.set(false);
-          this.error.set(err.error?.message || 'Erro ao criar venda');
+          this.error.set(err.error?.message || 'Failed to create sale');
         }
       });
     }

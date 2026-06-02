@@ -4,8 +4,8 @@ import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-// O unwrap interceptor (core/http/unwrap.interceptor.ts) normaliza o envelope
-// duplo do backend para um nivel unico, entao aqui usamos a forma simples.
+// The unwrap interceptor (core/http/unwrap.interceptor.ts) normalises the
+// legacy double-nested backend envelope, so we work against the flat shape here.
 export interface AuthResponse {
   success: boolean;
   message: string;

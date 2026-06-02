@@ -2,12 +2,13 @@ import { HttpInterceptorFn, HttpResponse } from '@angular/common/http';
 import { map } from 'rxjs';
 
 /**
- * O backend envelopa as respostas em ApiResponseWithData<T>, e em vários endpoints
- * acaba envelopando duas vezes — o payload real fica em `body.data.data`.
+ * The backend wraps responses in ApiResponseWithData<T>. Historically several
+ * endpoints wrapped the payload twice — the real data lived in `body.data.data`.
  *
- * Este interceptor detecta o padrão {success, message, data: {success, message, data: T}}
- * e nivela para {success, message, data: T}, deixando os componentes Angular
- * trabalharem com uma estrutura previsível.
+ * This interceptor detects the {success, message, data: {success, message, data: T}}
+ * shape and flattens it to {success, message, data: T}, so Angular components can
+ * always work against the same predictable structure. Once the backend no longer
+ * double-wraps the envelope (current state) this is a no-op safety net.
  */
 export const unwrapInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
@@ -17,7 +18,7 @@ export const unwrapInterceptor: HttpInterceptorFn = (req, next) => {
       const body = event.body as any;
       if (!isApiEnvelope(body)) return event;
 
-      // Caso duplo-aninhado: body.data eh outro envelope
+      // Double-nested case: body.data is itself an envelope.
       if (isApiEnvelope(body.data)) {
         const inner = body.data as ApiEnvelope;
         const unwrapped = {

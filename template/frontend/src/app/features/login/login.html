@@ -26,25 +26,25 @@
 
         <div>
           <label for="email" class="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
-          <input id="email" type="email" formControlName="email" placeholder="seu@email.com" autocomplete="email"
+          <input id="email" type="email" formControlName="email" placeholder="you@email.com" autocomplete="email"
             class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder:text-slate-400">
           @if (form.get('email')?.touched && form.get('email')?.errors?.['required']) {
-            <p class="mt-1 text-xs text-red-600">Email é obrigatório</p>
+            <p class="mt-1 text-xs text-red-600">Email is required</p>
           }
           @if (form.get('email')?.touched && form.get('email')?.errors?.['email']) {
-            <p class="mt-1 text-xs text-red-600">Email inválido</p>
+            <p class="mt-1 text-xs text-red-600">Invalid email</p>
           }
         </div>
 
         <div>
-          <label for="password" class="block text-sm font-medium text-slate-700 mb-1.5">Senha</label>
+          <label for="password" class="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
           <input id="password" type="password" formControlName="password" placeholder="••••••••" autocomplete="current-password"
             class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder:text-slate-400">
           @if (form.get('password')?.touched && form.get('password')?.errors?.['required']) {
-            <p class="mt-1 text-xs text-red-600">Senha é obrigatória</p>
+            <p class="mt-1 text-xs text-red-600">Password is required</p>
           }
           @if (form.get('password')?.touched && form.get('password')?.errors?.['minlength']) {
-            <p class="mt-1 text-xs text-red-600">Mínimo 6 caracteres</p>
+            <p class="mt-1 text-xs text-red-600">At least 6 characters</p>
           }
         </div>
 
@@ -56,17 +56,17 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
               </svg>
-              Entrando...
+              Signing in...
             </span>
           } @else {
-            Entrar
+            Sign in
           }
         </button>
       </form>
     </div>
 
     <p class="text-center text-slate-500 text-xs mt-6">
-      Sistema de gestão de vendas — Avaliação Técnica
+      Sales management system &mdash; Technical evaluation
     </p>
   </div>
 </div>

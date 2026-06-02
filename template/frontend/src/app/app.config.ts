@@ -9,7 +9,8 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    // unwrap roda apos auth (ordem invertida na resposta) e normaliza o envelope duplo
+    // The unwrap interceptor runs after auth on the response side and flattens the
+    // legacy double-nested ApiResponse envelope when it appears.
     provideHttpClient(withInterceptors([authInterceptor, unwrapInterceptor]))
   ]
 };

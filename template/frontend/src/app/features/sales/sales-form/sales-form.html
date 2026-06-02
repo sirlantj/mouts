@@ -1,14 +1,14 @@
 <!-- Header -->
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
   <div>
-    <h2 class="text-2xl font-bold text-slate-900">{{ isEdit() ? 'Editar Venda' : 'Nova Venda' }}</h2>
-    <p class="text-sm text-slate-500 mt-0.5">{{ isEdit() ? 'Atualize os dados da venda' : 'Preencha os dados para criar uma nova venda' }}</p>
+    <h2 class="text-2xl font-bold text-slate-900">{{ isEdit() ? 'Edit sale' : 'New sale' }}</h2>
+    <p class="text-sm text-slate-500 mt-0.5">{{ isEdit() ? 'Update the sale data' : 'Fill in the data to create a new sale' }}</p>
   </div>
   <a routerLink="/sales" class="inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-900 transition-colors">
     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
     </svg>
-    Voltar para lista
+    Back to list
   </a>
 </div>
 
@@ -18,7 +18,7 @@
       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
     </svg>
-    <span class="ml-3 text-sm text-slate-500">Carregando venda...</span>
+    <span class="ml-3 text-sm text-slate-500">Loading sale...</span>
   </div>
 } @else {
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5">
@@ -37,39 +37,39 @@
         <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
         </svg>
-        Dados da Venda
+        Sale data
       </h3>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1.5">Nº da Venda</label>
-          <input formControlName="saleNumber" placeholder="VND-001" [readOnly]="isEdit()"
+          <label class="block text-sm font-medium text-slate-700 mb-1.5">Sale #</label>
+          <input formControlName="saleNumber" placeholder="SALE-001" [readOnly]="isEdit()"
             class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 read-only:bg-slate-50 read-only:text-slate-500 placeholder:text-slate-400">
         </div>
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1.5">Data</label>
+          <label class="block text-sm font-medium text-slate-700 mb-1.5">Date</label>
           <input type="date" formControlName="saleDate"
             class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
         </div>
         <div class="hidden lg:block"></div>
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1.5">ID do Cliente</label>
-          <input formControlName="customerExternalId" placeholder="ID externo do cliente"
+          <label class="block text-sm font-medium text-slate-700 mb-1.5">Customer ID</label>
+          <input formControlName="customerExternalId" placeholder="External customer id"
             class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder:text-slate-400">
         </div>
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1.5">Nome do Cliente</label>
-          <input formControlName="customerName" placeholder="Nome do cliente"
+          <label class="block text-sm font-medium text-slate-700 mb-1.5">Customer name</label>
+          <input formControlName="customerName" placeholder="Customer name"
             class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder:text-slate-400">
         </div>
         <div class="hidden lg:block"></div>
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1.5">ID da Filial</label>
-          <input formControlName="branchExternalId" placeholder="ID externo da filial"
+          <label class="block text-sm font-medium text-slate-700 mb-1.5">Branch ID</label>
+          <input formControlName="branchExternalId" placeholder="External branch id"
             class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder:text-slate-400">
         </div>
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1.5">Nome da Filial</label>
-          <input formControlName="branchName" placeholder="Nome da filial"
+          <label class="block text-sm font-medium text-slate-700 mb-1.5">Branch name</label>
+          <input formControlName="branchName" placeholder="Branch name"
             class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder:text-slate-400">
         </div>
       </div>
@@ -82,24 +82,24 @@
           <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
           </svg>
-          Itens da Venda
+          Sale items
         </h3>
         <button type="button" (click)="addItem()"
           class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-sm font-medium rounded-lg transition-colors cursor-pointer">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
-          Adicionar Item
+          Add item
         </button>
       </div>
 
       <!-- Discount rules -->
       <div class="flex flex-wrap gap-2 mb-5">
-        <span class="text-xs text-slate-500 py-1">Regras de desconto:</span>
-        <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-xs text-slate-600">1-3 un: 0%</span>
-        <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-blue-50 text-xs text-blue-700 font-medium">4-9 un: 10%</span>
-        <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-50 text-xs text-emerald-700 font-medium">10-20 un: 20%</span>
-        <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-red-50 text-xs text-red-600 font-medium">&gt;20: bloqueado</span>
+        <span class="text-xs text-slate-500 py-1">Discount rules:</span>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-xs text-slate-600">1-3 units: 0%</span>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-blue-50 text-xs text-blue-700 font-medium">4-9 units: 10%</span>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-50 text-xs text-emerald-700 font-medium">10-20 units: 20%</span>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-red-50 text-xs text-red-600 font-medium">&gt;20: blocked</span>
       </div>
 
       <!-- Desktop items table -->
@@ -107,11 +107,11 @@
         <table class="w-full text-sm">
           <thead>
             <tr class="border-b border-slate-100">
-              <th class="pb-2 text-left text-xs font-semibold text-slate-500 uppercase">Produto</th>
-              <th class="pb-2 text-left text-xs font-semibold text-slate-500 uppercase">ID Externo</th>
-              <th class="pb-2 text-left text-xs font-semibold text-slate-500 uppercase w-24">Qtd</th>
-              <th class="pb-2 text-left text-xs font-semibold text-slate-500 uppercase w-28">Preço Unit.</th>
-              <th class="pb-2 text-center text-xs font-semibold text-slate-500 uppercase w-20">Desc.</th>
+              <th class="pb-2 text-left text-xs font-semibold text-slate-500 uppercase">Product</th>
+              <th class="pb-2 text-left text-xs font-semibold text-slate-500 uppercase">External ID</th>
+              <th class="pb-2 text-left text-xs font-semibold text-slate-500 uppercase w-24">Qty</th>
+              <th class="pb-2 text-left text-xs font-semibold text-slate-500 uppercase w-28">Unit price</th>
+              <th class="pb-2 text-center text-xs font-semibold text-slate-500 uppercase w-20">Disc.</th>
               <th class="pb-2 text-right text-xs font-semibold text-slate-500 uppercase w-28">Total</th>
               <th class="pb-2 w-10"></th>
             </tr>
@@ -120,7 +120,7 @@
             @for (item of items.controls; track $index; let i = $index) {
               <tr [formGroupName]="i" class="group">
                 <td class="py-2 pr-2">
-                  <input formControlName="productName" placeholder="Nome do produto"
+                  <input formControlName="productName" placeholder="Product name"
                     class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 placeholder:text-slate-400">
                 </td>
                 <td class="py-2 pr-2">
@@ -146,7 +146,7 @@
                       {{ getDiscount(item.get('quantity')?.value) | percent }}
                     </span>
                   } @else {
-                    <span class="text-slate-400">—</span>
+                    <span class="text-slate-400">&mdash;</span>
                   }
                 </td>
                 <td class="py-2 pr-2 text-right font-semibold text-slate-900 whitespace-nowrap">
@@ -179,18 +179,18 @@
                 </svg>
               </button>
             </div>
-            <input formControlName="productName" placeholder="Nome do produto"
+            <input formControlName="productName" placeholder="Product name"
               class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 bg-white placeholder:text-slate-400">
-            <input formControlName="productExternalId" placeholder="ID externo do produto"
+            <input formControlName="productExternalId" placeholder="External product id"
               class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 bg-white placeholder:text-slate-400">
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs text-slate-500 mb-1">Quantidade</label>
+                <label class="block text-xs text-slate-500 mb-1">Quantity</label>
                 <input type="number" formControlName="quantity" min="1" max="20"
                   class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 bg-white">
               </div>
               <div>
-                <label class="block text-xs text-slate-500 mb-1">Preço Unitário</label>
+                <label class="block text-xs text-slate-500 mb-1">Unit price</label>
                 <input type="number" formControlName="unitPrice" min="0.01" step="0.01"
                   class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 bg-white">
               </div>
@@ -199,7 +199,7 @@
               <div>
                 @if (getDiscount(item.get('quantity')?.value) > 0) {
                   <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
-                    Desconto {{ getDiscount(item.get('quantity')?.value) | percent }}
+                    Discount {{ getDiscount(item.get('quantity')?.value) | percent }}
                   </span>
                 }
               </div>
@@ -211,7 +211,7 @@
 
       <!-- Grand total -->
       <div class="mt-5 pt-4 border-t border-slate-200 flex items-center justify-end gap-4">
-        <span class="text-sm font-medium text-slate-600">Total Geral</span>
+        <span class="text-sm font-medium text-slate-600">Grand total</span>
         <span class="text-2xl font-bold text-slate-900">{{ getGrandTotal() | currency:'BRL' }}</span>
       </div>
     </div>
@@ -220,7 +220,7 @@
     <div class="flex flex-col-reverse sm:flex-row gap-3 justify-end">
       <a routerLink="/sales"
         class="px-5 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-colors text-center">
-        Cancelar
+        Cancel
       </a>
       <button type="submit" [disabled]="form.invalid || saving()"
         class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors cursor-pointer shadow-sm">
@@ -229,12 +229,12 @@
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
           </svg>
-          Salvando...
+          Saving...
         } @else {
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
           </svg>
-          {{ isEdit() ? 'Atualizar Venda' : 'Criar Venda' }}
+          {{ isEdit() ? 'Update sale' : 'Create sale' }}
         }
       </button>
     </div>

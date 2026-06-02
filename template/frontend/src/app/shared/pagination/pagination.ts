@@ -6,7 +6,7 @@ import { Component, input, output, computed } from '@angular/core';
   template: `
     <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4">
       <span class="text-sm text-slate-500">
-        {{ totalCount() }} registros — Página {{ currentPage() }} de {{ totalPages() }}
+        {{ totalCount() }} records &mdash; Page {{ currentPage() }} of {{ totalPages() }}
       </span>
       <div class="flex items-center gap-1">
         <button [disabled]="currentPage() <= 1" (click)="pageChange.emit(currentPage() - 1)"
