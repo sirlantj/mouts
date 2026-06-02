@@ -14,8 +14,6 @@
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="OneOf" Version="3.0.271" />
-    <PackageReference Include="Rebus" Version="8.4.3" />
-    <PackageReference Include="Rebus.ServiceProvider" Version="10.2.0" />
   </ItemGroup>
 
 </Project>
