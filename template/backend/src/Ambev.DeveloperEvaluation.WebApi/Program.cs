@@ -28,6 +28,14 @@ public class Program
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAngular", policy =>
+                    policy.WithOrigins("http://localhost:4200")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod());
+            });
+
             builder.AddBasicHealthChecks();
 
             builder.Services.AddSwaggerGen(c =>
@@ -111,6 +119,8 @@ public class Program
             }
 
             app.UseHttpsRedirection();
+
+            app.UseCors("AllowAngular");
 
             app.UseAuthentication();
             app.UseAuthorization();
