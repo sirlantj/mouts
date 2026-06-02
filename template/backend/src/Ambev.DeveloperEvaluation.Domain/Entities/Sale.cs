@@ -1,5 +1,6 @@
 using Ambev.DeveloperEvaluation.Domain.Common;
 using Ambev.DeveloperEvaluation.Domain.Enums;
+using Ambev.DeveloperEvaluation.Domain.Exceptions;
 
 namespace Ambev.DeveloperEvaluation.Domain.Entities;
 
@@ -57,10 +58,22 @@ public class Sale : BaseEntity
 
     public void Cancel()
     {
+        EnsureActive("cancel");
         Status = SaleStatus.Cancelled;
         foreach (var item in _items.Where(i => !i.IsCancelled))
             item.Cancel();
         UpdatedAt = DateTime.UtcNow;
+    }
+
+    public bool IsActive => Status == SaleStatus.Active;
+
+    /// <summary>
+    /// Guards write operations: throws if the sale is not active.
+    /// </summary>
+    public void EnsureActive(string operation)
+    {
+        if (!IsActive)
+            throw new DomainException($"Cannot {operation} a cancelled sale.");
     }
 
     public void RecalculateTotal()
