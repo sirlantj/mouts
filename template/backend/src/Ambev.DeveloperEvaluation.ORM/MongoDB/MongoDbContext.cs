@@ -1,14 +1,22 @@
 using Microsoft.Extensions.Configuration;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 
 namespace Ambev.DeveloperEvaluation.ORM.MongoDB;
 
 public class MongoDbContext
 {
+    private static readonly object _initLock = new();
+    private static bool _initialized;
+
     private readonly IMongoDatabase _database;
 
     public MongoDbContext(IConfiguration configuration)
     {
+        EnsureGuidSerializerRegistered();
+
         var connectionString = configuration["MongoDB:ConnectionString"];
         var databaseName = configuration["MongoDB:DatabaseName"];
 
@@ -17,4 +25,15 @@ public class MongoDbContext
     }
 
     public IMongoCollection<T> GetCollection<T>(string name) => _database.GetCollection<T>(name);
+
+    private static void EnsureGuidSerializerRegistered()
+    {
+        if (_initialized) return;
+        lock (_initLock)
+        {
+            if (_initialized) return;
+            BsonSerializer.TryRegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
+            _initialized = true;
+        }
+    }
 }
