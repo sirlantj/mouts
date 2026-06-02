@@ -6,6 +6,7 @@ using Ambev.DeveloperEvaluation.Domain.Repositories;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Rebus.Bus;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale;
 
@@ -15,6 +16,7 @@ public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleRe
     private readonly ISaleReadRepository _readRepository;
     private readonly ISaleEventStore _eventStore;
     private readonly ICacheService _cache;
+    private readonly IBus _bus;
     private readonly ILogger<CreateSaleHandler> _logger;
 
     public CreateSaleHandler(
@@ -22,12 +24,14 @@ public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleRe
         ISaleReadRepository readRepository,
         ISaleEventStore eventStore,
         ICacheService cache,
+        IBus bus,
         ILogger<CreateSaleHandler> logger)
     {
         _saleRepository = saleRepository;
         _readRepository = readRepository;
         _eventStore = eventStore;
         _cache = cache;
+        _bus = bus;
         _logger = logger;
     }
 
@@ -57,6 +61,7 @@ public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleRe
         _logger.LogInformation("SaleCreated: {SaleNumber}", created.SaleNumber);
         await _eventStore.StoreEventAsync(nameof(SaleCreatedEvent), domainEvent, created.Id, created.SaleNumber, cancellationToken);
         await _readRepository.UpsertAsync(created, cancellationToken);
+        await _bus.Publish(domainEvent);
 
         await _cache.RemoveByPrefixAsync(CacheKeys.SalesListPrefix, cancellationToken);
 
