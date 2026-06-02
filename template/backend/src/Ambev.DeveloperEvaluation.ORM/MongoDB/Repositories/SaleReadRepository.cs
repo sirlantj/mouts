@@ -139,6 +139,14 @@ public class SaleReadRepository : ISaleReadRepository
                 UnitPrice = i.UnitPrice
             };
             item.CalculateDiscount();
+
+            // Preserve the cancelled-item state from the read model — otherwise
+            // every item came back as IsCancelled=false and the UI offered to
+            // cancel items that were already cancelled (which the backend then
+            // rejected with 400).
+            if (i.IsCancelled)
+                item.Cancel();
+
             return item;
         }).ToList();
 
