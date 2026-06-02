@@ -22,6 +22,11 @@ public class Program
         {
             Log.Information("Starting web application");
 
+            // Npgsql >= 6 exige DateTime.Kind=Utc para colunas `timestamp with time zone`.
+            // Habilitamos o modo legacy para aceitar DateTime sem timezone (Kind=Unspecified)
+            // — necessario porque o frontend manda datas como "YYYY-MM-DD" puro.
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
             builder.AddDefaultLogging();
 
