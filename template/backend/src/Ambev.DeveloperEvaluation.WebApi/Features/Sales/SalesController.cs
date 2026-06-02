@@ -13,20 +13,27 @@ using Ambev.DeveloperEvaluation.WebApi.Features.Sales.GetSales;
 using Ambev.DeveloperEvaluation.WebApi.Features.Sales.UpdateSale;
 using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ambev.DeveloperEvaluation.WebApi.Features.Sales;
 
 /// <summary>
-/// Controller for managing sales operations
+/// Controller for managing sales operations.
+/// Provides endpoints for creating, reading, updating and cancelling sales.
+/// Discount rules: 4+ items = 10% off, 10-20 items = 20% off, max 20 items per product.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class SalesController : BaseController
 {
     private readonly IMediator _mediator;
     private readonly IMapper _mapper;
 
+    /// <summary>
+    /// Initializes a new instance of SalesController
+    /// </summary>
     public SalesController(IMediator mediator, IMapper mapper)
     {
         _mediator = mediator;
@@ -34,8 +41,20 @@ public class SalesController : BaseController
     }
 
     /// <summary>
-    /// Creates a new sale
+    /// Creates a new sale with items
     /// </summary>
+    /// <remarks>
+    /// Discount rules are applied automatically per item:
+    /// - Less than 4 items: no discount
+    /// - 4 to 9 items: 10% discount
+    /// - 10 to 20 items: 20% discount
+    /// - More than 20 items: not allowed
+    /// </remarks>
+    /// <param name="request">The sale creation request with items</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>The created sale with calculated totals</returns>
+    /// <response code="201">Sale created successfully</response>
+    /// <response code="400">Invalid request data</response>
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponseWithData<CreateSaleResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -59,8 +78,14 @@ public class SalesController : BaseController
     }
 
     /// <summary>
-    /// Retrieves a sale by its ID
+    /// Retrieves a sale by its unique identifier
     /// </summary>
+    /// <param name="id">The unique identifier of the sale</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>The sale details including all items</returns>
+    /// <response code="200">Sale retrieved successfully</response>
+    /// <response code="400">Invalid ID format</response>
+    /// <response code="404">Sale not found</response>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(ApiResponseWithData<GetSaleResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -88,6 +113,19 @@ public class SalesController : BaseController
     /// <summary>
     /// Retrieves a paginated list of sales with optional filters
     /// </summary>
+    /// <remarks>
+    /// Supports pagination, ordering and filtering:
+    /// - _page: page number (default: 1)
+    /// - _size: page size (default: 10, max: 100)
+    /// - _order: sort expression (e.g. "saleDate desc")
+    /// - CustomerName, BranchName, Status: filter by field
+    /// - StartDate, EndDate: filter by date range
+    /// </remarks>
+    /// <param name="request">Query parameters for pagination, ordering and filtering</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Paginated list of sales</returns>
+    /// <response code="200">Sales retrieved successfully</response>
+    /// <response code="400">Invalid query parameters</response>
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponseWithData<GetSalesResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -124,6 +162,17 @@ public class SalesController : BaseController
     /// <summary>
     /// Updates an existing sale
     /// </summary>
+    /// <remarks>
+    /// Replaces customer, branch and all items. Discount rules are re-applied.
+    /// Only active sales can be updated.
+    /// </remarks>
+    /// <param name="id">The unique identifier of the sale to update</param>
+    /// <param name="request">The updated sale data</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>The updated sale details</returns>
+    /// <response code="200">Sale updated successfully</response>
+    /// <response code="400">Invalid request data</response>
+    /// <response code="404">Sale not found</response>
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(ApiResponseWithData<UpdateSaleResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -152,6 +201,16 @@ public class SalesController : BaseController
     /// <summary>
     /// Cancels a sale (soft delete)
     /// </summary>
+    /// <remarks>
+    /// Sets the sale status to Cancelled and cancels all items.
+    /// This is a soft delete - the sale record is preserved for auditing.
+    /// </remarks>
+    /// <param name="id">The unique identifier of the sale to cancel</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Success confirmation</returns>
+    /// <response code="200">Sale cancelled successfully</response>
+    /// <response code="400">Invalid ID or sale already cancelled</response>
+    /// <response code="404">Sale not found</response>
     [HttpDelete("{id}")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -178,6 +237,17 @@ public class SalesController : BaseController
     /// <summary>
     /// Cancels a specific item within a sale
     /// </summary>
+    /// <remarks>
+    /// Cancels a single item and recalculates the sale total.
+    /// Only active sales with non-cancelled items can be modified.
+    /// </remarks>
+    /// <param name="saleId">The sale identifier</param>
+    /// <param name="itemId">The item identifier to cancel</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Updated sale total after item cancellation</returns>
+    /// <response code="200">Item cancelled successfully</response>
+    /// <response code="400">Invalid IDs or item already cancelled</response>
+    /// <response code="404">Sale or item not found</response>
     [HttpPatch("{saleId}/items/{itemId}/cancel")]
     [ProducesResponseType(typeof(ApiResponseWithData<CancelSaleItemResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
