@@ -1,46 +1,25 @@
 using Ambev.DeveloperEvaluation.Application.Sales.Common;
-using Ambev.DeveloperEvaluation.Common.Caching;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Events;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
-using FluentValidation;
 using MediatR;
-using Microsoft.Extensions.Logging;
-using Rebus.Bus;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale;
 
-public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleResult>
+public sealed class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleResult>
 {
     private readonly ISaleRepository _saleRepository;
-    private readonly ISaleReadRepository _readRepository;
-    private readonly ISaleEventStore _eventStore;
-    private readonly ICacheService _cache;
-    private readonly IBus _bus;
-    private readonly ILogger<CreateSaleHandler> _logger;
+    private readonly ISaleSideEffects _sideEffects;
 
-    public CreateSaleHandler(
-        ISaleRepository saleRepository,
-        ISaleReadRepository readRepository,
-        ISaleEventStore eventStore,
-        ICacheService cache,
-        IBus bus,
-        ILogger<CreateSaleHandler> logger)
+    public CreateSaleHandler(ISaleRepository saleRepository, ISaleSideEffects sideEffects)
     {
         _saleRepository = saleRepository;
-        _readRepository = readRepository;
-        _eventStore = eventStore;
-        _cache = cache;
-        _bus = bus;
-        _logger = logger;
+        _sideEffects = sideEffects;
     }
 
     public async Task<CreateSaleResult> Handle(CreateSaleCommand command, CancellationToken cancellationToken)
     {
-        var validator = new CreateSaleValidator();
-        var validationResult = await validator.ValidateAsync(command, cancellationToken);
-        if (!validationResult.IsValid)
-            throw new ValidationException(validationResult.Errors);
+        // ValidationBehavior already ran CreateSaleValidator via the MediatR pipeline.
 
         var sale = new Sale
         {
@@ -57,13 +36,7 @@ public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleRe
 
         var created = await _saleRepository.CreateAsync(sale, cancellationToken);
 
-        var domainEvent = new SaleCreatedEvent(created);
-        _logger.LogInformation("SaleCreated: {SaleNumber}", created.SaleNumber);
-        await _eventStore.StoreEventAsync(nameof(SaleCreatedEvent), domainEvent, created.Id, created.SaleNumber, cancellationToken);
-        await _readRepository.UpsertAsync(created, cancellationToken);
-        await _bus.Publish(domainEvent);
-
-        await _cache.RemoveByPrefixAsync(CacheKeys.SalesListPrefix, cancellationToken);
+        await _sideEffects.PublishAsync(created, new SaleCreatedEvent(created), cancellationToken);
 
         return new CreateSaleResult
         {
