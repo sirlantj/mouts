@@ -1,3 +1,5 @@
+using Ambev.DeveloperEvaluation.Application.Sales.Common;
+using Ambev.DeveloperEvaluation.Common.Caching;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Events;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
@@ -12,17 +14,20 @@ public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleRe
     private readonly ISaleRepository _saleRepository;
     private readonly ISaleReadRepository _readRepository;
     private readonly ISaleEventStore _eventStore;
+    private readonly ICacheService _cache;
     private readonly ILogger<CreateSaleHandler> _logger;
 
     public CreateSaleHandler(
         ISaleRepository saleRepository,
         ISaleReadRepository readRepository,
         ISaleEventStore eventStore,
+        ICacheService cache,
         ILogger<CreateSaleHandler> logger)
     {
         _saleRepository = saleRepository;
         _readRepository = readRepository;
         _eventStore = eventStore;
+        _cache = cache;
         _logger = logger;
     }
 
@@ -52,6 +57,8 @@ public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleRe
         _logger.LogInformation("SaleCreated: {SaleNumber}", created.SaleNumber);
         await _eventStore.StoreEventAsync(nameof(SaleCreatedEvent), domainEvent, created.Id, created.SaleNumber, cancellationToken);
         await _readRepository.UpsertAsync(created, cancellationToken);
+
+        await _cache.RemoveByPrefixAsync(CacheKeys.SalesListPrefix, cancellationToken);
 
         return new CreateSaleResult
         {

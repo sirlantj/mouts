@@ -1,3 +1,5 @@
+using Ambev.DeveloperEvaluation.Application.Sales.Common;
+using Ambev.DeveloperEvaluation.Common.Caching;
 using Ambev.DeveloperEvaluation.Domain.Events;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 using Ambev.DeveloperEvaluation.Domain.Specifications;
@@ -12,17 +14,20 @@ public class CancelSaleItemHandler : IRequestHandler<CancelSaleItemCommand, Canc
     private readonly ISaleRepository _saleRepository;
     private readonly ISaleReadRepository _readRepository;
     private readonly ISaleEventStore _eventStore;
+    private readonly ICacheService _cache;
     private readonly ILogger<CancelSaleItemHandler> _logger;
 
     public CancelSaleItemHandler(
         ISaleRepository saleRepository,
         ISaleReadRepository readRepository,
         ISaleEventStore eventStore,
+        ICacheService cache,
         ILogger<CancelSaleItemHandler> logger)
     {
         _saleRepository = saleRepository;
         _readRepository = readRepository;
         _eventStore = eventStore;
+        _cache = cache;
         _logger = logger;
     }
 
@@ -47,6 +52,9 @@ public class CancelSaleItemHandler : IRequestHandler<CancelSaleItemCommand, Canc
         _logger.LogInformation("ItemCancelled: Sale {SaleNumber}, Item {ItemId}", sale.SaleNumber, command.ItemId);
         await _eventStore.StoreEventAsync(nameof(ItemCancelledEvent), domainEvent, sale.Id, sale.SaleNumber, cancellationToken);
         await _readRepository.UpsertAsync(sale, cancellationToken);
+
+        await _cache.RemoveAsync(CacheKeys.ForSale(sale.Id), cancellationToken);
+        await _cache.RemoveByPrefixAsync(CacheKeys.SalesListPrefix, cancellationToken);
 
         return new CancelSaleItemResult
         {

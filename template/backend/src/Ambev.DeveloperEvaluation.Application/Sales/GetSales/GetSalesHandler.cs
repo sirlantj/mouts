@@ -1,4 +1,6 @@
+using Ambev.DeveloperEvaluation.Application.Sales.Common;
 using Ambev.DeveloperEvaluation.Application.Sales.GetSale;
+using Ambev.DeveloperEvaluation.Common.Caching;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 using FluentValidation;
 using MediatR;
@@ -8,10 +10,12 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.GetSales;
 public class GetSalesHandler : IRequestHandler<GetSalesCommand, GetSalesResult>
 {
     private readonly ISaleReadRepository _readRepository;
+    private readonly ICacheService _cache;
 
-    public GetSalesHandler(ISaleReadRepository readRepository)
+    public GetSalesHandler(ISaleReadRepository readRepository, ICacheService cache)
     {
         _readRepository = readRepository;
+        _cache = cache;
     }
 
     public async Task<GetSalesResult> Handle(GetSalesCommand command, CancellationToken cancellationToken)
@@ -20,6 +24,15 @@ public class GetSalesHandler : IRequestHandler<GetSalesCommand, GetSalesResult>
         var validationResult = await validator.ValidateAsync(command, cancellationToken);
         if (!validationResult.IsValid)
             throw new ValidationException(validationResult.Errors);
+
+        var cacheKey = CacheKeys.ForSalesList(
+            command.Page, command.Size, command.Order,
+            command.CustomerName, command.BranchName, command.Status,
+            command.StartDate, command.EndDate);
+
+        var cached = await _cache.GetAsync<GetSalesResult>(cacheKey, cancellationToken);
+        if (cached is not null)
+            return cached;
 
         var (items, totalCount) = await _readRepository.GetPaginatedAsync(
             command.Page, command.Size, command.Order,
@@ -51,12 +64,16 @@ public class GetSalesHandler : IRequestHandler<GetSalesCommand, GetSalesResult>
             }).ToList()
         });
 
-        return new GetSalesResult
+        var result = new GetSalesResult
         {
             Data = data,
             TotalCount = totalCount,
             CurrentPage = command.Page,
             TotalPages = (int)Math.Ceiling(totalCount / (double)command.Size)
         };
+
+        await _cache.SetAsync(cacheKey, result, TimeSpan.FromMinutes(2), cancellationToken);
+
+        return result;
     }
 }

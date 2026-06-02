@@ -1,3 +1,5 @@
+using Ambev.DeveloperEvaluation.Application.Sales.Common;
+using Ambev.DeveloperEvaluation.Common.Caching;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 using FluentValidation;
 using MediatR;
@@ -8,11 +10,13 @@ public class GetSaleHandler : IRequestHandler<GetSaleCommand, GetSaleResult>
 {
     private readonly ISaleReadRepository _readRepository;
     private readonly ISaleRepository _saleRepository;
+    private readonly ICacheService _cache;
 
-    public GetSaleHandler(ISaleReadRepository readRepository, ISaleRepository saleRepository)
+    public GetSaleHandler(ISaleReadRepository readRepository, ISaleRepository saleRepository, ICacheService cache)
     {
         _readRepository = readRepository;
         _saleRepository = saleRepository;
+        _cache = cache;
     }
 
     public async Task<GetSaleResult> Handle(GetSaleCommand command, CancellationToken cancellationToken)
@@ -22,6 +26,11 @@ public class GetSaleHandler : IRequestHandler<GetSaleCommand, GetSaleResult>
         if (!validationResult.IsValid)
             throw new ValidationException(validationResult.Errors);
 
+        var cacheKey = CacheKeys.ForSale(command.Id);
+        var cached = await _cache.GetAsync<GetSaleResult>(cacheKey, cancellationToken);
+        if (cached is not null)
+            return cached;
+
         var sale = await _readRepository.GetByIdAsync(command.Id, cancellationToken);
 
         // fallback to PostgreSQL
@@ -30,7 +39,7 @@ public class GetSaleHandler : IRequestHandler<GetSaleCommand, GetSaleResult>
         if (sale == null)
             throw new KeyNotFoundException($"Sale with id {command.Id} not found.");
 
-        return new GetSaleResult
+        var result = new GetSaleResult
         {
             Id = sale.Id,
             SaleNumber = sale.SaleNumber,
@@ -53,5 +62,9 @@ public class GetSaleHandler : IRequestHandler<GetSaleCommand, GetSaleResult>
                 IsCancelled = i.IsCancelled
             }).ToList()
         };
+
+        await _cache.SetAsync(cacheKey, result, TimeSpan.FromMinutes(5), cancellationToken);
+
+        return result;
     }
 }
