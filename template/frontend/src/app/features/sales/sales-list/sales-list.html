@@ -1,0 +1,182 @@
+<!-- Header -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+  <div>
+    <h2 class="text-2xl font-bold text-slate-900">Vendas</h2>
+    <p class="text-sm text-slate-500 mt-0.5">Gerencie todas as vendas do sistema</p>
+  </div>
+  <a routerLink="/sales/new"
+    class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+    </svg>
+    Nova Venda
+  </a>
+</div>
+
+<!-- Filters -->
+<div class="bg-white rounded-xl border border-slate-200 p-4 mb-4 shadow-sm">
+  <div class="flex flex-col sm:flex-row gap-3">
+    <input type="text" placeholder="Filtrar por cliente..." [(ngModel)]="filterCustomer" (keyup.enter)="onFilter()"
+      class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder:text-slate-400">
+    <input type="text" placeholder="Filtrar por filial..." [(ngModel)]="filterBranch" (keyup.enter)="onFilter()"
+      class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder:text-slate-400">
+    <select [(ngModel)]="filterStatus" (change)="onFilter()"
+      class="px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white text-slate-700 min-w-[160px]">
+      <option value="">Todos os status</option>
+      <option value="Active">Ativo</option>
+      <option value="Cancelled">Cancelado</option>
+    </select>
+    <button (click)="onFilter()"
+      class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg transition-colors cursor-pointer whitespace-nowrap">
+      Filtrar
+    </button>
+  </div>
+</div>
+
+<!-- Table -->
+@if (loading()) {
+  <div class="flex items-center justify-center py-20">
+    <svg class="animate-spin h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+    </svg>
+    <span class="ml-3 text-sm text-slate-500">Carregando vendas...</span>
+  </div>
+} @else {
+  <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <!-- Desktop table -->
+    <div class="hidden md:block overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-slate-100 bg-slate-50/80">
+            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 select-none" (click)="onSort('saleNumber')">
+              Nº Venda <span class="text-blue-500">{{ getSortIcon('saleNumber') }}</span>
+            </th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 select-none" (click)="onSort('saleDate')">
+              Data <span class="text-blue-500">{{ getSortIcon('saleDate') }}</span>
+            </th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 select-none" (click)="onSort('customerName')">
+              Cliente <span class="text-blue-500">{{ getSortIcon('customerName') }}</span>
+            </th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Filial</th>
+            <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 select-none" (click)="onSort('totalAmount')">
+              Total <span class="text-blue-500">{{ getSortIcon('totalAmount') }}</span>
+            </th>
+            <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+            <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Ações</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          @for (sale of sales(); track sale.id) {
+            <tr class="hover:bg-slate-50/50 transition-colors">
+              <td class="px-4 py-3 font-medium text-slate-900">{{ sale.saleNumber }}</td>
+              <td class="px-4 py-3 text-slate-600">{{ sale.saleDate | date:'dd/MM/yyyy' }}</td>
+              <td class="px-4 py-3 text-slate-700">{{ sale.customerName }}</td>
+              <td class="px-4 py-3 text-slate-600">{{ sale.branchName }}</td>
+              <td class="px-4 py-3 text-right font-semibold text-slate-900">{{ sale.totalAmount | currency:'BRL' }}</td>
+              <td class="px-4 py-3 text-center">
+                @if (sale.status === 'Active') {
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">Ativo</span>
+                } @else {
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">Cancelado</span>
+                }
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center justify-end gap-1">
+                  <a [routerLink]="['/sales', sale.id]" title="Ver detalhes"
+                    class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                  </a>
+                  @if (sale.status === 'Active') {
+                    <a [routerLink]="['/sales', sale.id, 'edit']" title="Editar"
+                      class="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                      </svg>
+                    </a>
+                    <button (click)="askCancel(sale)" title="Cancelar"
+                      class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                      </svg>
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="px-4 py-16 text-center">
+                <svg class="w-12 h-12 text-slate-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <p class="text-sm text-slate-500">Nenhuma venda encontrada</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile cards -->
+    <div class="md:hidden divide-y divide-slate-100">
+      @for (sale of sales(); track sale.id) {
+        <div class="p-4 hover:bg-slate-50/50">
+          <div class="flex items-start justify-between mb-2">
+            <div>
+              <p class="font-semibold text-slate-900">{{ sale.saleNumber }}</p>
+              <p class="text-xs text-slate-500 mt-0.5">{{ sale.saleDate | date:'dd/MM/yyyy' }}</p>
+            </div>
+            @if (sale.status === 'Active') {
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">Ativo</span>
+            } @else {
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">Cancelado</span>
+            }
+          </div>
+          <div class="text-sm text-slate-600 mb-1">{{ sale.customerName }}</div>
+          <div class="text-xs text-slate-400 mb-3">{{ sale.branchName }}</div>
+          <div class="flex items-center justify-between">
+            <span class="text-lg font-bold text-slate-900">{{ sale.totalAmount | currency:'BRL' }}</span>
+            <div class="flex gap-1">
+              <a [routerLink]="['/sales', sale.id]" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </a>
+              @if (sale.status === 'Active') {
+                <a [routerLink]="['/sales', sale.id, 'edit']" class="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                </a>
+                <button (click)="askCancel(sale)" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg cursor-pointer">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="p-12 text-center">
+          <p class="text-sm text-slate-500">Nenhuma venda encontrada</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (totalPages() > 1) {
+    <app-pagination
+      [currentPage]="currentPage()"
+      [totalPages]="totalPages()"
+      [totalCount]="totalCount()"
+      (pageChange)="onPageChange($event)"
+    />
+  }
+}
+
+<app-confirm-dialog
+  [open]="confirmOpen()"
+  title="Cancelar Venda"
+  [message]="confirmMessage()"
+  (confirmed)="onConfirmCancel()"
+  (cancelled)="onCancelDialog()"
+/>
