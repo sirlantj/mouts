@@ -1,26 +1,22 @@
-﻿namespace Ambev.DeveloperEvaluation.Common.Security
+namespace Ambev.DeveloperEvaluation.Common.Security;
+
+/// <summary>
+/// Contract for representing a user in the system.
+/// </summary>
+public interface IUser
 {
     /// <summary>
-    /// Define o contrato para representação de um usuário no sistema.
+    /// Gets the unique identifier of the user.
     /// </summary>
-    public interface IUser
-    {
-        /// <summary>
-        /// Obtém o identificador único do usuário.
-        /// </summary>
-        /// <returns>O ID do usuário como uma string.</returns>
-        public string Id { get; }
+    public string Id { get; }
 
-        /// <summary>
-        /// Obtém o nome de usuário.
-        /// </summary>
-        /// <returns>O nome de usuário.</returns>
-        public string Username { get; }
+    /// <summary>
+    /// Gets the username.
+    /// </summary>
+    public string Username { get; }
 
-        /// <summary>
-        /// Obtém o papel/função do usuário no sistema.
-        /// </summary>
-        /// <returns>O papel do usuário como uma string.</returns>
-        public string Role { get; }
-    }
+    /// <summary>
+    /// Gets the user's role in the system.
+    /// </summary>
+    public string Role { get; }
 }
