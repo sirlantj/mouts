@@ -1,5 +1,7 @@
 ﻿using Ambev.DeveloperEvaluation.Domain.Repositories;
 using Ambev.DeveloperEvaluation.ORM;
+using Ambev.DeveloperEvaluation.ORM.MongoDB;
+using Ambev.DeveloperEvaluation.ORM.MongoDB.Repositories;
 using Ambev.DeveloperEvaluation.ORM.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -15,5 +17,9 @@ public class InfrastructureModuleInitializer : IModuleInitializer
         builder.Services.AddScoped<DbContext>(provider => provider.GetRequiredService<DefaultContext>());
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<ISaleRepository, SaleRepository>();
+
+        builder.Services.AddSingleton<MongoDbContext>();
+        builder.Services.AddScoped<ISaleEventStore, SaleEventStoreRepository>();
+        builder.Services.AddScoped<ISaleReadRepository, SaleReadRepository>();
     }
 }
