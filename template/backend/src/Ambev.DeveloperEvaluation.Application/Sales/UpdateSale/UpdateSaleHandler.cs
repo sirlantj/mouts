@@ -1,3 +1,5 @@
+using Ambev.DeveloperEvaluation.Application.Sales.Common;
+using Ambev.DeveloperEvaluation.Common.Caching;
 using Ambev.DeveloperEvaluation.Domain.Events;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 using Ambev.DeveloperEvaluation.Domain.Specifications;
@@ -12,17 +14,20 @@ public class UpdateSaleHandler : IRequestHandler<UpdateSaleCommand, UpdateSaleRe
     private readonly ISaleRepository _saleRepository;
     private readonly ISaleReadRepository _readRepository;
     private readonly ISaleEventStore _eventStore;
+    private readonly ICacheService _cache;
     private readonly ILogger<UpdateSaleHandler> _logger;
 
     public UpdateSaleHandler(
         ISaleRepository saleRepository,
         ISaleReadRepository readRepository,
         ISaleEventStore eventStore,
+        ICacheService cache,
         ILogger<UpdateSaleHandler> logger)
     {
         _saleRepository = saleRepository;
         _readRepository = readRepository;
         _eventStore = eventStore;
+        _cache = cache;
         _logger = logger;
     }
 
@@ -68,6 +73,9 @@ public class UpdateSaleHandler : IRequestHandler<UpdateSaleCommand, UpdateSaleRe
         _logger.LogInformation("SaleModified: {SaleNumber}", sale.SaleNumber);
         await _eventStore.StoreEventAsync(nameof(SaleModifiedEvent), domainEvent, sale.Id, sale.SaleNumber, cancellationToken);
         await _readRepository.UpsertAsync(sale, cancellationToken);
+
+        await _cache.RemoveAsync(CacheKeys.ForSale(sale.Id), cancellationToken);
+        await _cache.RemoveByPrefixAsync(CacheKeys.SalesListPrefix, cancellationToken);
 
         return new UpdateSaleResult
         {
