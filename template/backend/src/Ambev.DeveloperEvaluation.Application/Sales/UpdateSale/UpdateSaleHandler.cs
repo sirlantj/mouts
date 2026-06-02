@@ -6,6 +6,7 @@ using Ambev.DeveloperEvaluation.Domain.Specifications;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Rebus.Bus;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.UpdateSale;
 
@@ -15,6 +16,7 @@ public class UpdateSaleHandler : IRequestHandler<UpdateSaleCommand, UpdateSaleRe
     private readonly ISaleReadRepository _readRepository;
     private readonly ISaleEventStore _eventStore;
     private readonly ICacheService _cache;
+    private readonly IBus _bus;
     private readonly ILogger<UpdateSaleHandler> _logger;
 
     public UpdateSaleHandler(
@@ -22,12 +24,14 @@ public class UpdateSaleHandler : IRequestHandler<UpdateSaleCommand, UpdateSaleRe
         ISaleReadRepository readRepository,
         ISaleEventStore eventStore,
         ICacheService cache,
+        IBus bus,
         ILogger<UpdateSaleHandler> logger)
     {
         _saleRepository = saleRepository;
         _readRepository = readRepository;
         _eventStore = eventStore;
         _cache = cache;
+        _bus = bus;
         _logger = logger;
     }
 
@@ -73,6 +77,7 @@ public class UpdateSaleHandler : IRequestHandler<UpdateSaleCommand, UpdateSaleRe
         _logger.LogInformation("SaleModified: {SaleNumber}", sale.SaleNumber);
         await _eventStore.StoreEventAsync(nameof(SaleModifiedEvent), domainEvent, sale.Id, sale.SaleNumber, cancellationToken);
         await _readRepository.UpsertAsync(sale, cancellationToken);
+        await _bus.Publish(domainEvent);
 
         await _cache.RemoveAsync(CacheKeys.ForSale(sale.Id), cancellationToken);
         await _cache.RemoveByPrefixAsync(CacheKeys.SalesListPrefix, cancellationToken);

@@ -6,6 +6,7 @@ using Ambev.DeveloperEvaluation.Domain.Specifications;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Rebus.Bus;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.CancelSaleItem;
 
@@ -15,6 +16,7 @@ public class CancelSaleItemHandler : IRequestHandler<CancelSaleItemCommand, Canc
     private readonly ISaleReadRepository _readRepository;
     private readonly ISaleEventStore _eventStore;
     private readonly ICacheService _cache;
+    private readonly IBus _bus;
     private readonly ILogger<CancelSaleItemHandler> _logger;
 
     public CancelSaleItemHandler(
@@ -22,12 +24,14 @@ public class CancelSaleItemHandler : IRequestHandler<CancelSaleItemCommand, Canc
         ISaleReadRepository readRepository,
         ISaleEventStore eventStore,
         ICacheService cache,
+        IBus bus,
         ILogger<CancelSaleItemHandler> logger)
     {
         _saleRepository = saleRepository;
         _readRepository = readRepository;
         _eventStore = eventStore;
         _cache = cache;
+        _bus = bus;
         _logger = logger;
     }
 
@@ -52,6 +56,7 @@ public class CancelSaleItemHandler : IRequestHandler<CancelSaleItemCommand, Canc
         _logger.LogInformation("ItemCancelled: Sale {SaleNumber}, Item {ItemId}", sale.SaleNumber, command.ItemId);
         await _eventStore.StoreEventAsync(nameof(ItemCancelledEvent), domainEvent, sale.Id, sale.SaleNumber, cancellationToken);
         await _readRepository.UpsertAsync(sale, cancellationToken);
+        await _bus.Publish(domainEvent);
 
         await _cache.RemoveAsync(CacheKeys.ForSale(sale.Id), cancellationToken);
         await _cache.RemoveByPrefixAsync(CacheKeys.SalesListPrefix, cancellationToken);
